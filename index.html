@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Studio Pro | 4U.IA.BR</title>
+    <meta name="description" content="Gerador e Scanner de QR Code avançado com suporte a PIX Oficial, Wi-Fi, WhatsApp, Logotipo central, Molduras de impressão e Live Preview.">
+
+    <!-- PWA & Mobile -->
+    <meta name="theme-color" content="#00d4ff">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="QR Code Studio Pro | 4U.IA.BR">
+    <meta property="og:description" content="Gere QR Codes com PIX, Wi-Fi, logotipo no centro, molduras e leitura instantânea.">
+    <meta property="og:image" content="banner-16-9.jpg">
+    <meta property="og:type" content="website">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700;800&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 & FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+
+    <!-- Partículas & Preloader -->
+    <div class="particles-bg" id="particles-bg"></div>
+    <div id="preloader">
+        <div class="preloader-content">
+            <div class="spinner-ring">
+                <div></div><div></div><div></div><div></div>
+            </div>
+            <p>Carregando QR Studio Pro...</p>
+        </div>
+    </div>
+
+    <!-- Header Principal -->
+    <header class="main-header">
+        <div class="header-glow"></div>
+        <div class="header-content">
+            <div class="logo-container mb-2">
+                <a href="https://4u.ia.br" title="Voltar ao Portal 4U.IA.BR" class="d-inline-flex align-items-center gap-2 text-decoration-none">
+                    <img alt="4U.IA.BR Logo" id="page-logo" src="/logo.png" onerror="this.style.display='none'" style="max-width: 110px;"/>
+                    <span class="badge-studio-brand"><i class="fas fa-qrcode text-primary"></i> 4U STUDIO PRO</span>
+                </a>
+            </div>
+            <h1 class="main-headline">Gerador &amp; Scanner de QR Code</h1>
+            <p class="sub-headline">
+                Crie QR Codes profissionais para <strong>PIX, Wi-Fi, WhatsApp, Links</strong> com logo no centro e moldura para impressão.
+            </p>
+
+            <!-- Abas Principais (Tabs) -->
+            <div class="studio-nav-tabs">
+                <button type="button" class="studio-tab-btn active" id="tabBtnGenerator" onclick="switchMainTab('generator')">
+                    <i class="fas fa-wand-magic-sparkles"></i> <span>Criar QR Code</span>
+                </button>
+                <button type="button" class="studio-tab-btn" id="tabBtnScanner" onclick="switchMainTab('scanner')">
+                    <i class="fas fa-camera"></i> <span>Escanear / Ler</span>
+                </button>
+                <button type="button" class="studio-tab-btn" id="tabBtnHistory" onclick="openHistoryModal()">
+                    <i class="fas fa-clock-rotate-left"></i> <span>Histórico (<span id="historyCount">0</span>)</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-4">
+
+        <!-- ==================== ABA 1: GERADOR DE QR CODE ==================== -->
+        <section id="generatorSection" class="studio-view active">
+            <div class="row g-4">
+
+                <!-- Coluna da Esquerda: Configurações & Formulário -->
+                <div class="col-lg-7">
+                    <div class="card studio-card">
+                        <div class="card-body p-4 p-md-5">
+
+                            <!-- Seletor Rápido de Conteúdo -->
+                            <div class="mb-4">
+                                <label for="content-type" class="form-label d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-layer-group text-primary me-2"></i>Tipo de Conteúdo:</span>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="badgeTypeActive">Link Web</span>
+                                </label>
+                                <select id="content-type" class="form-select form-select-lg">
+                                    <option value="pix" selected>💠 PIX Oficial (Copia e Cola &amp; QR Code)</option>
+                                    <option value="url">🔗 URL (Link Web)</option>
+                                    <option value="whatsapp">💬 WhatsApp Direct</option>
+                                    <option value="wifi">📶 Acesso Wi-Fi</option>
+                                    <option value="vcard">📇 vCard (Cartão de Contato)</option>
+                                    <option value="googlemaps">📍 Localização Maps</option>
+                                    <option value="email">✉️ E-mail</option>
+                                    <option value="sms">💬 SMS</option>
+                                    <option value="text">📝 Texto Plano</option>
+                                    <option value="crypto">₿ Criptomoeda</option>
+                                </select>
+                            </div>
+
+                            <!-- Formulário de Dados -->
+                            <form id="qr-form" novalidate onsubmit="event.preventDefault(); triggerGenerate();">
+
+                                <!-- 1. PIX (OFICIAL BANCO CENTRAL) -->
+                                <div id="pix-options" class="content-options active">
+                                    <div class="content-options-header">
+                                        <i class="fas fa-bolt text-success"></i>
+                                        <div>
+                                            <h5 class="mb-0">Configurar Pagamento PIX</h5>
+                                            <small class="text-secondary">Padrão oficial EMVco com Chave, Beneficiário e Copia &amp; Cola</small>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-5">
+                                            <label for="pix-key-type" class="form-label">Tipo de Chave:</label>
+                                            <select id="pix-key-type" class="form-select" onchange="updatePixPlaceholder()">
+                                                <option value="cpf" selected>CPF</option>
+                                                <option value="cnpj">CNPJ</option>
+                                                <option value="phone">Telefone (+55)</option>
+                                                <option value="email">E-mail</option>
+                                                <option value="random">Chave Aleatória (EVP)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <label for="pix-key" class="form-label">Chave PIX:</label>
+                                            <input type="text" id="pix-key" class="form-control" placeholder="123.456.789-00 ou só dígitos" required autocomplete="off">
+                                            <div class="invalid-feedback">Insira a chave Pix.</div>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <label for="pix-name" class="form-label">Nome do Beneficiário: <small class="text-muted">(obrigatório)</small></label>
+                                            <input type="text" id="pix-name" class="form-control" placeholder="Ex: Maria da Silva" maxlength="25" required>
+                                            <div class="invalid-feedback">Nome do recebedor é obrigatório pelo Banco Central.</div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label for="pix-city" class="form-label">Cidade: <small class="text-muted">(obrigatório)</small></label>
+                                            <input type="text" id="pix-city" class="form-control" placeholder="Ex: SAO PAULO" maxlength="15" value="SAO PAULO" required>
+                                            <div class="invalid-feedback">Cidade do recebedor é obrigatória.</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="pix-amount" class="form-label">Valor (R$ - Opcional):</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">R$</span>
+                                                <input type="number" id="pix-amount" class="form-control" step="0.01" min="0" placeholder="0,00 (deixe livre se preferir)">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="pix-txid" class="form-label">Identificador / TXID (Opcional):</label>
+                                            <input type="text" id="pix-txid" class="form-control" placeholder="Ex: PEDIDO123" maxlength="25">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 2. URL (LINK WEB) -->
+                                <div id="url-options" class="content-options">
+                                    <div class="content-options-header">
+                                        <i class="fas fa-link text-primary"></i>
+                                        <div>
+                                            <h5 class="mb-0">Link / Endereço Web</h5>
+                                            <small class="text-secondary">Redireciona diretamente para seu site, linktree ou página</small>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="url-link" class="form-label">Endereço Web (URL):</label>
+                                        <input type="url" id="url-link" class="form-control form-control-lg" placeholder="https://www.seusite.com.br" required autocomplete="off">
+                                        <div class="invalid-feedback">Insira uma URL válida (ex: https://...).</div>
+                                    </div>
+                                </div>
+
+                                <!-- 3. WHATSAPP -->
+                                <div id="whatsapp-options" class="content-options">
+                                    <div class="content-options-header">
+                                        <i class="fab fa-whatsapp text-success"></i>
+                                        <div>
+                                            <h5 class="mb-0">WhatsApp Direct</h5>
+                                            <small class="text-secondary">Inicia conversa direta no WhatsApp sem precisar salvar o número</small>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-5">
+                                            <label for="whatsapp-country" class="form-label">País:</label>
+                                            <select id="whatsapp-country" class="form-select">
+                                                <option value="55" selected>Brasil (+55)</option>
+                                                <option value="1">EUA/Canadá (+1)</option>
+                                                <option value="351">Portugal (+351)</option>
+                                                <option value="44">Reino Unido (+44)</option>
+                                                <option value="49">Alemanha (+49)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <label for="whatsapp-number" class="form-label">Número com DDD (só dígitos):</label>
+                                            <input type="tel" id="whatsapp-number" class="form-control" placeholder="11987654321">
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="whatsapp-message" class="form-label">Mensagem Inicial (Opcional):</label>
+                                            <textarea id="whatsapp-message" class="form-control" rows="2" placeholder="Olá! Vi seu anúncio e gostaria de mais informações..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 4. WI-FI -->
+                                <div id="wifi-options" class="content-options">
+                                    <div class="content-options-header">
+                                        <i class="fas fa-wifi text-info"></i>
+                                        <div>
+                                            <h5 class="mb-0">Acesso à Rede Wi-Fi</h5>
+                                            <small class="text-secondary">Conecta smartphones automaticamente sem digitar senha manual</small>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="wifi-ssid" class="form-label">Nome da Rede (SSID):</label>
+                                            <input type="text" id="wifi-ssid" class="form-control" placeholder="MinhaRedeWiFi">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="wifi-encryption" class="form-label">Segurança:</label>
+                                            <select id="wifi-encryption" class="form-select">
+                                                <option value="WPA" selected>WPA/WPA2/WPA3</option>
+                                                <option value="WEP">WEP</option>
+                                                <option value="nopass">Aberta (Sem Senha)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="wifi-password" class="form-label">Senha da Rede:</label>
+                                            <input type="password" id="wifi-password" class="form-control" placeholder="Senha da sua rede">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 5. VCARD (CONTATO) -->
+                                <div id="vcard-options" class="content-options">
+                                    <div class="content-options-header">
+                                        <i class="fas fa-address-card text-warning"></i>
+                                        <div>
+                                            <h5 class="mb-0">Cartão de Visita Virtual (vCard)</h5>
+                                            <small class="text-secondary">Salva o contato completo na agenda do celular ao escanear</small>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="vcard-name" class="form-label">Nome Completo:</label>
+                                            <input type="text" id="vcard-name" class="form-control" placeholder="Nome Sobrenome">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="vcard-tel" class="form-label">Telefone (com DDI):</label>
+                                            <input type="tel" id="vcard-tel" class="form-control" placeholder="+5511987654321">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="vcard-email" class="form-label">E-mail:</label>
+                                            <input type="email" id="vcard-email" class="form-control" placeholder="contato@empresa.com">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="vcard-company" class="form-label">Empresa / Cargo:</label>
+                                            <input type="text" id="vcard-company" class="form-control" placeholder="Nome da Empresa">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 6. MAPS -->
+                                <div id="googlemaps-options" class="content-options">
+                                    <div class="content-options-header">
+                                        <i class="fas fa-map-marker-alt text-danger"></i>
+                                        <div>
+                                            <h5 class="mb-0">Localização Google Maps</h5>
+                                            <small class="text-secondary">Abre as coordenadas exatas ou link de rota</small>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="googlemaps-link" class="form-label">Link ou Coordenadas do Maps:</label>
+                                        <input type="url" id="googlemaps-link" class="form-control" placeholder="https://maps.app.goo.gl/... ou https://www.google.com/maps?q=...">
+                                    </div>
+                                </div>
+
+                                <!-- 7. EMAIL -->
+                                <div id="email-options" class="content-options">
+                                    <div class="content-options-header">
+                                        <i class="fas fa-envelope text-primary"></i>
+                                        <div>
+                                            <h5 class="mb-0">Envio de E-mail</h5>
+                                            <small class="text-secondary">Abre o app de e-mail pronto para envio</small>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label for="email-address" class="form-label">Destinatário:</label>
+                                            <input type="email" id="email-address" class="form-control" placeholder="contato@dominio.com">
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="email-subject" class="form-label">Assunto:</label>
+                                            <input type="text" id="email-subject" class="form-control" placeholder="Assunto da mensagem">
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="email-body" class="form-label">Mensagem:</label>
+                                            <textarea id="email-body" class="form-control" rows="2" placeholder="Mensagem prévia..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 8. SMS -->
+                                <div id="sms-options" class="content-options">
+                                    <div class="content-options-header">
+                                        <i class="fas fa-comment-sms text-info"></i>
+                                        <div>
+                                            <h5 class="mb-0">Envio de SMS</h5>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label for="sms-number" class="form-label">Número (com DDI):</label>
+                                            <input type="tel" id="sms-number" class="form-control" placeholder="+5511987654321">
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="sms-message" class="form-label">Texto da Mensagem:</label>
+                                            <textarea id="sms-message" class="form-control" rows="2" placeholder="Texto para SMS..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 9. TEXTO -->
+                                <div id="text-options" class="content-options">
+                                    <div class="content-options-header">
+                                        <i class="fas fa-align-left text-secondary"></i>
+                                        <div>
+                                            <h5 class="mb-0">Texto Plano / Qualquer Conteúdo</h5>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="text-content" class="form-label">Texto:</label>
+                                        <textarea id="text-content" class="form-control" rows="4" placeholder="Digite ou cole qualquer texto..."></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- 10. CRYPTO -->
+                                <div id="crypto-options" class="content-options">
+                                    <div class="content-options-header">
+                                        <i class="fab fa-bitcoin text-warning"></i>
+                                        <div>
+                                            <h5 class="mb-0">Transferência de Criptomoeda</h5>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-5">
+                                            <label for="crypto-type" class="form-label">Moeda:</label>
+                                            <select id="crypto-type" class="form-select">
+                                                <option value="bitcoin" selected>Bitcoin (BTC)</option>
+                                                <option value="ethereum">Ethereum (ETH)</option>
+                                                <option value="litecoin">Litecoin (LTC)</option>
+                                                <option value="dogecoin">Dogecoin (DOGE)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <label for="crypto-address" class="form-label">Endereço da Carteira:</label>
+                                            <input type="text" id="crypto-address" class="form-control" placeholder="Endereço público da carteira">
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="crypto-amount" class="form-label">Valor (Opcional):</label>
+                                            <input type="number" id="crypto-amount" class="form-control" step="any" min="0" placeholder="0.001">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr class="divider-line my-4">
+
+                                <!-- SEÇÃO: ESTILO, LOGO & MOLDURA -->
+                                <div class="accordion studio-accordion" id="accordionCustomization">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDesign" aria-expanded="true">
+                                                <i class="fas fa-palette text-primary me-2"></i> Estilo, Cores &amp; Logotipo Central
+                                            </button>
+                                        </h2>
+                                        <div id="collapseDesign" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+
+                                                <!-- Cores e Resolução -->
+                                                <div class="row g-3 mb-4">
+                                                    <div class="col-sm-6 col-md-4">
+                                                        <label for="qr-color" class="form-label">Cor do Código:</label>
+                                                        <div class="color-input-wrapper">
+                                                            <input type="color" id="qr-color" class="form-control form-control-color" value="#000000">
+                                                            <span class="color-preview" id="color-preview-primary">#000000</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6 col-md-4">
+                                                        <label for="qr-bg-color" class="form-label">Cor de Fundo:</label>
+                                                        <div class="color-input-wrapper">
+                                                            <input type="color" id="qr-bg-color" class="form-control form-control-color" value="#ffffff">
+                                                            <span class="color-preview" id="color-preview-bg">#FFFFFF</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12 col-md-4">
+                                                        <label for="qr-size" class="form-label">Resolução:</label>
+                                                        <select id="qr-size" class="form-select">
+                                                            <option value="256">256 px (Padrão)</option>
+                                                            <option value="384" selected>384 px (Alta Nitidez)</option>
+                                                            <option value="512">512 px (HD)</option>
+                                                            <option value="1024">1024 px (Impressão 4K)</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Logotipo Central -->
+                                                <div class="mb-4">
+                                                    <label class="form-label d-flex justify-content-between align-items-center">
+                                                        <span><i class="fas fa-icons text-primary me-1"></i> Logotipo no Centro:</span>
+                                                        <small class="text-muted">Protegido por ECC Nível H</small>
+                                                    </label>
+                                                    <div class="logo-picker-grid">
+                                                        <button type="button" class="logo-badge-btn active" data-logo="none" title="Sem logo">
+                                                            <i class="fas fa-ban"></i> Nenhum
+                                                        </button>
+                                                        <button type="button" class="logo-badge-btn" data-logo="pix" title="Logo Pix">
+                                                            <i class="fas fa-bolt text-teal"></i> Pix
+                                                        </button>
+                                                        <button type="button" class="logo-badge-btn" data-logo="whatsapp" title="Logo WhatsApp">
+                                                            <i class="fab fa-whatsapp text-success"></i> WhatsApp
+                                                        </button>
+                                                        <button type="button" class="logo-badge-btn" data-logo="wifi" title="Logo Wi-Fi">
+                                                            <i class="fas fa-wifi text-info"></i> Wi-Fi
+                                                        </button>
+                                                        <button type="button" class="logo-badge-btn" data-logo="instagram" title="Logo Instagram">
+                                                            <i class="fab fa-instagram text-pink"></i> Instagram
+                                                        </button>
+                                                        <button type="button" class="logo-badge-btn" data-logo="4u" title="Logo 4U">
+                                                            <i class="fas fa-star text-primary"></i> 4U
+                                                        </button>
+                                                        <label class="logo-badge-btn upload-logo-label" title="Upload de Imagem Própria">
+                                                            <i class="fas fa-cloud-arrow-up"></i> Seu Logo
+                                                            <input type="file" id="logoUploadInput" accept="image/*" style="display:none;">
+                                                        </label>
+                                                    </div>
+                                                    <div id="customLogoPreviewBadge" class="mt-2 text-primary" style="display:none; font-size:0.85rem;">
+                                                        <i class="fas fa-check-circle"></i> Imagem personalizada carregada!
+                                                        <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-2" onclick="clearCustomLogo()">Remover</button>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Moldura / Frame de Chamada -->
+                                                <div>
+                                                    <label class="form-label d-flex justify-content-between">
+                                                        <span><i class="fas fa-crop-simple text-primary me-1"></i> Moldura para Impressão:</span>
+                                                    </label>
+                                                    <div class="frame-picker-grid">
+                                                        <button type="button" class="frame-badge-btn active" data-frame="none">Sem Moldura</button>
+                                                        <button type="button" class="frame-badge-btn" data-frame="scanme" data-text="ESCANEIE AQUI">ESCANEIE AQUI</button>
+                                                        <button type="button" class="frame-badge-btn" data-frame="pix" data-text="PAGUE COM PIX">PAGUE COM PIX</button>
+                                                        <button type="button" class="frame-badge-btn" data-frame="wifi" data-text="CONECTE-SE AO WI-FI">CONECTE AO WI-FI</button>
+                                                        <button type="button" class="frame-badge-btn" data-frame="custom">Texto Próprio...</button>
+                                                    </div>
+                                                    <div id="customFrameTextInputWrapper" class="mt-2" style="display:none;">
+                                                        <input type="text" id="customFrameText" class="form-control form-control-sm" placeholder="Digite o texto da moldura (ex: SIGA NOSSO INSTAGRAM)">
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna da Direita: Live Preview & Ações de Download -->
+                <div class="col-lg-5">
+                    <div class="studio-preview-card sticky-top" style="top: 24px;">
+                        <div class="preview-header">
+                            <span class="preview-title"><i class="fas fa-eye text-primary"></i> Preview em Tempo Real</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle" id="previewStatusBadge">Pronto</span>
+                        </div>
+
+                        <!-- Canvas / Render do QR Code -->
+                        <div class="preview-canvas-wrapper" id="previewCanvasWrapper">
+                            <div id="qrCodeContainer" class="qr-code-box">
+                                <div id="qrCodeCanvasDiv"></div>
+                            </div>
+                        </div>
+
+                        <!-- Resumo PIX (se ativo) -->
+                        <div id="pixSummaryCard" class="pix-summary-box mt-3" style="display:none;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-teal"><i class="fas fa-bolt"></i> Pix Copia e Cola:</strong>
+                                <span class="badge bg-dark border border-teal text-teal" id="pixValueBadge">Valor Livre</span>
+                            </div>
+                            <div class="pix-code-container">
+                                <textarea id="pixPayloadText" class="form-control pix-textarea" readonly rows="2"></textarea>
+                                <button type="button" class="btn btn-teal btn-sm w-100 mt-2" id="btnCopyPixPayload" onclick="copyPixCode()">
+                                    <i class="fas fa-copy"></i> Copiar Código Pix Copia e Cola
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação & Exportação -->
+                        <div class="preview-actions mt-3">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary btn-lg btn-action-main" id="btnDownloadPNG" onclick="downloadQRCode('png')">
+                                    <i class="fas fa-download"></i> Baixar Imagem (PNG)
+                                </button>
+
+                                <div class="btn-group w-100">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="downloadQRCode('svg')">
+                                        <i class="fas fa-bezier-curve"></i> Baixar SVG
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="openPrintDisplayModal()">
+                                        <i class="fas fa-print"></i> Imprimir Placa
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="copyRawQRCodeData()">
+                                        <i class="fas fa-copy"></i> Copiar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==================== ABA 2: SCANNER / LEITOR ==================== -->
+        <section id="scannerSection" class="studio-view" style="display:none;">
+            <div class="card studio-card max-width-700 mx-auto">
+                <div class="card-body p-4 p-md-5 text-center">
+                    <h3 class="mb-3 text-primary"><i class="fas fa-camera"></i> Escanear QR Code</h3>
+                    <p class="text-secondary mb-4">Aponte a câmera do seu celular/computador ou envie uma foto de QR Code.</p>
+
+                    <!-- Camera Viewfinder -->
+                    <div id="scannerReaderWrapper" class="scanner-box mx-auto mb-4">
+                        <div id="scanner-reader"></div>
+                        <div class="scanner-laser" id="scannerLaser"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2 flex-wrap mb-4">
+                        <button type="button" class="btn btn-primary" id="btnStartCamera" onclick="startCameraScanner()">
+                            <i class="fas fa-video"></i> Iniciar Câmera
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" id="btnStopCamera" onclick="stopCameraScanner()" style="display:none;">
+                            <i class="fas fa-stop"></i> Parar Câmera
+                        </button>
+                        <label class="btn btn-outline-secondary mb-0">
+                            <i class="fas fa-file-image"></i> Carregar Imagem
+                            <input type="file" id="scannerFileInput" accept="image/*" style="display:none;" onchange="scanImageFile(this)">
+                        </label>
+                    </div>
+
+                    <!-- Resultado do Scan -->
+                    <div id="scannerResultBox" class="scanner-result-box text-start" style="display:none;">
+                        <h6 class="text-success mb-2"><i class="fas fa-check-circle"></i> Conteúdo Lido com Sucesso:</h6>
+                        <div class="scanner-result-content p-3 mb-3" id="scannerDecodedText"></div>
+                        <div class="d-flex gap-2">
+                            <a id="btnOpenScannedUrl" href="#" target="_blank" class="btn btn-success" style="display:none;">
+                                <i class="fas fa-external-link-alt"></i> Abrir Link
+                            </a>
+                            <button type="button" class="btn btn-outline-primary" onclick="copyScannedText()">
+                                <i class="fas fa-copy"></i> Copiar Conteúdo
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== MODAL: HISTÓRICO LOCAL ==================== -->
+    <div class="modal fade" id="historyModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content studio-modal">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-primary"><i class="fas fa-clock-rotate-left"></i> Histórico Recente de QR Codes</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="historyListContainer" class="history-list"></div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearAllHistory()">
+                        <i class="fas fa-trash"></i> Limpar Histórico
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: IMPRESSÃO DE DISPLAY DE MESA ==================== -->
+    <div class="modal fade" id="printDisplayModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content studio-modal">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-primary"><i class="fas fa-print"></i> Placa para Display de Mesa (A4/A5)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="text-secondary small mb-3">Pré-visualização da folha pronta para impressão ou salvar em PDF:</p>
+                    
+                    <!-- Folha de Impressão Renderizada -->
+                    <div class="print-sheet-preview" id="printSheetArea">
+                        <div class="print-sheet-card">
+                            <h2 class="print-title" id="printCardTitle">CONECTE-SE / PAGUE AQUI</h2>
+                            <p class="print-subtitle" id="printCardSubtitle">Aponte a câmera do seu celular para escanear</p>
+                            <div class="print-qr-target" id="printQrTarget"></div>
+                            <div class="print-instructions">
+                                <div><strong>1.</strong> Abra a câmera do seu smartphone</div>
+                                <div><strong>2.</strong> Aponte para o código acima</div>
+                                <div><strong>3.</strong> Conecte-se ou pague com facilidade!</div>
+                            </div>
+                            <div class="print-footer-tag">4U.IA.BR &bull; QR Code Studio Pro</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between">
+                    <div class="d-flex gap-2">
+                        <input type="text" id="printTitleInput" class="form-control form-control-sm" placeholder="Título da Placa" value="PAGUE COM PIX / WI-FI" oninput="updatePrintSheetText()">
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success" onclick="triggerNativePrint()">
+                            <i class="fas fa-print"></i> Imprimir Placa Agora
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de Notificações -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="studioToast" class="toast align-items-center text-bg-dark border-primary" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">Sucesso!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer-clean mt-5 py-4 border-top border-secondary text-center">
+        <div class="container">
+            <p class="text-secondary mb-1">&copy; 2026 <strong>4U.IA.BR Labs</strong> &bull; Todos os direitos reservados.</p>
+            <p class="small text-muted mb-0">100% Client-side &bull; Zero retenção de dados &bull; Compatível com PIX Oficial</p>
+        </div>
+    </footer>
+
+    <!-- Scripts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- App Engine -->
+    <script src="qr_generator.js"></script>
+
+</body>
+</html>
