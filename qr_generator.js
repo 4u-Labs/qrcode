@@ -67,7 +67,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (target) target.classList.add('active');
 
             const badge = document.getElementById('badgeTypeActive');
-            if (badge) badge.textContent = contentTypeSelect.options[contentTypeSelect.selectedIndex].text.split(' ')[1] || 'Ativo';
+            if (badge) {
+                const typeLabels = {
+                    pix: '⚡ PIX Oficial',
+                    url: '🔗 Link Web',
+                    whatsapp: '💬 WhatsApp',
+                    wifi: '📶 Wi-Fi',
+                    vcard: '📇 vCard',
+                    googlemaps: '📍 Maps',
+                    email: '✉️ E-mail',
+                    sms: '💬 SMS',
+                    text: '📝 Texto',
+                    crypto: '₿ Cripto'
+                };
+                badge.textContent = typeLabels[val] || 'Ativo';
+            }
 
             // Ajustar logo recomendado automaticamente se usuário não escolheu outro
             if (selectedLogo === 'none' || selectedLogo === 'pix' || selectedLogo === 'whatsapp' || selectedLogo === 'wifi') {
